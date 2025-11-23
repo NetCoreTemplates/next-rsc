@@ -226,4 +226,3 @@ x mix db-identity
 - [Next.js Documentation](https://nextjs.org/docs)
 - [AutoQuery CRUD](https://docs.servicestack.net/autoquery-crud)
 - [ServiceStack Auth](https://docs.servicestack.net/authentication-and-authorization)
-
