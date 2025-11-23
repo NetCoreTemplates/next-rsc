@@ -39,14 +39,13 @@ services.AddServiceStack(typeof(MyServices).Assembly);
 
 var app = builder.Build();
 var nodeProxy = new NodeProxy("http://localhost:3000");
+app.MapNotFoundToNode(nodeProxy);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
-        
-    app.MapNotFoundToNode(nodeProxy, ignorePaths:["/Identity"]);
 }
 else
 {
@@ -77,8 +76,8 @@ if (app.Environment.IsDevelopment())
     app.RunNodeProcess(nodeProxy,
         lockFile: "../MyApp.Client/dist/lock",
         workingDirectory: "../MyApp.Client");
-
-    app.MapFallbackToNode(nodeProxy);
 }
+
+app.MapFallbackToNode(nodeProxy);
 
 app.Run();
