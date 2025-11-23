@@ -15,7 +15,7 @@ export default function Index() {
       <div className="max-w-7xl mx-auto px-5">
           <Intro />
           <div className="mb-32 flex justify-center">
-              <GettingStarted template="next-static" />
+              <GettingStarted template="next-rsc" />
           </div>
       </div>
     </Layout>

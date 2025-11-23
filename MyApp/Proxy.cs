@@ -9,10 +9,13 @@ using System.Threading;
 
 namespace MyApp;
 
-public static class Proxy
+public class NodeProxy
 {
-    public const bool Verbose = true;
-    public static string[] CacheFileExtensions = [
+    public HttpClient Client { get; }
+    public bool Verbose { get; set; } = true;
+    public string LogPrefix { get; set; } = "[node] ";
+
+    public string[] CacheFileExtensions { get; set; } = [
         ".js", 
         ".css", 
         ".ico", 
@@ -29,7 +32,9 @@ public static class Proxy
         ".map"
     ];
 
-    public static Func<HttpContext, bool> ShouldCache = context =>
+    public Func<HttpContext, bool> ShouldCache { get; set; }
+
+    public bool DefaultShouldCache(HttpContext context)
     {
         // Ignore if local
         if (context.Request.Host.Value!.Contains("localhost"))
@@ -53,30 +58,33 @@ public static class Proxy
             }
         }
         return false;
-    };
-
-    private static ConcurrentDictionary<string, (string mimeType, byte[] data, string? encoding)> Cache { get; } = new();
-
-    public static HttpClient CreateNodeClient(string nodeBaseUrl="http://localhost:3000")
-    {
-        var allowInvalidCertsForNext = false; // No HTTPS when proxying to Next internally
-
-        HttpMessageHandler nextHandler = allowInvalidCertsForNext
-            ? new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            }
-            : new HttpClientHandler();
-
-        var nextClient = new HttpClient(nextHandler)
-        {
-            BaseAddress = new Uri(nodeBaseUrl)
-        };
-        return nextClient;
     }
 
-    public static bool TryStartNode(string workingDirectory, out Process process, string logPrefix="[node]")
+    public ConcurrentDictionary<string, (string mimeType, byte[] data, string? encoding)> Cache { get; } = new();
+
+    public NodeProxy(HttpClient client)
+    {
+        Client = client;
+        ShouldCache = DefaultShouldCache;
+    }
+
+    public NodeProxy(string baseUrl, bool ignoreCerts = false)
+    {
+        // HTTPS not needed when proxying to internally
+        HttpMessageHandler nextHandler = ignoreCerts
+            ? new HttpClientHandler {
+                ServerCertificateCustomValidationCallback =
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+             }
+            : new HttpClientHandler();
+        var client = new HttpClient(nextHandler) {
+            BaseAddress = new Uri(baseUrl)
+        };
+        Client = client;
+        ShouldCache = DefaultShouldCache;
+    }
+
+    public bool TryStartNode(string workingDirectory, out Process process)
     {
         process = new Process 
         {
@@ -95,17 +103,21 @@ public static class Proxy
         process.StartInfo.RedirectStandardError = true;
         if (Verbose)
         {
+            var logPrefixTrimmed = LogPrefix.TrimEnd();
             process.OutputDataReceived += (s, e) => {
                 if (e.Data != null)
                 {
-                    Console.Write(logPrefix + ":");
+                    if (!string.IsNullOrEmpty(logPrefixTrimmed))
+                    {
+                        Console.Write(logPrefixTrimmed + ":");
+                    }
                     Console.WriteLine(e.Data);
                 }
             };
             process.ErrorDataReceived += (s, e) => {
                 if (e.Data != null)
                 {
-                    Console.Write(logPrefix + " ERROR:");
+                    Console.Write(LogPrefix + "ERROR:");
                     Console.WriteLine(e.Data);
                 }
             };
@@ -128,7 +140,7 @@ public static class Proxy
             || headerName.Equals("Upgrade", StringComparison.OrdinalIgnoreCase);
     }
 
-    public static async Task HttpToNode(HttpContext context, HttpClient nextClient)
+    public async Task HttpToNode(HttpContext context)
     {
         var request = context.Request;
 
@@ -189,7 +201,7 @@ public static class Proxy
             forwardRequest.Content = new StreamContent(request.Body);
         }
 
-        using var response = await nextClient.SendAsync(
+        using var response = await Client.SendAsync(
             forwardRequest,
             HttpCompletionOption.ResponseHeadersRead,
             context.RequestAborted);
@@ -233,11 +245,15 @@ public static class Proxy
 
         await response.Content.CopyToAsync(context.Response.Body, context.RequestAborted);
     }
+}
+
+public static class ProxyExtensions
+{
 
     /// <summary>
     /// Proxy 404s to Node.js (except for API/backend routes) must be registered before endpoints
     /// </summary>
-    public static void MapNotFoundToNode(this WebApplication app, HttpClient nextClient, string[]? ignorePaths=null)
+    public static void MapNotFoundToNode(this WebApplication app, NodeProxy proxy, string[]? ignorePaths=null)
     {
         app.Use(async (context, next) =>
         {
@@ -256,11 +272,61 @@ public static class Proxy
 
                 // Clear the 404 and let Next handle it
                 context.Response.Clear();
-                await HttpToNode(context, nextClient);
+                await proxy.HttpToNode(context);
             }
         });
     }
 
+    /// <summary>
+    /// Map clean URLs to .html files
+    /// </summary>
+    public static void MapCleanUrls(this WebApplication app)
+    {
+        // Serve .html files without extension
+        app.Use(async (context, next) =>
+        {
+            // Only process GET requests that don't have an extension and don't start with /api
+            var path = context.Request.Path.Value;
+            if (context.Request.Method == "GET" && !string.IsNullOrEmpty(path) && !Path.HasExtension(path)
+                && !path.StartsWith("/api", StringComparison.OrdinalIgnoreCase))
+            {
+                var fileProvider = app.Environment.WebRootFileProvider;
+                var fileInfo = fileProvider.GetFileInfo(path + ".html");
+                if (fileInfo.Exists && !fileInfo.IsDirectory)
+                {
+                    context.Response.ContentType = "text/html";
+                    using var stream = fileInfo.CreateReadStream();
+                    await stream.CopyToAsync(context.Response.Body); // Serve the HTML file directly
+                    return; // Don't call next(), we've handled the request
+                }
+            }
+            await next();
+        });
+    }
+    
+    /// <summary>
+    /// Map Next.js HMR WebSocket requests
+    /// </summary>
+    public static IEndpointConventionBuilder MapNextHmr(this WebApplication app, NodeProxy proxy)
+    {
+        return app.Map("/_next/webpack-hmr", async context =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                await WebSocketToNode(context, proxy.Client.BaseAddress!);
+            }
+            else
+            {
+                // HMR endpoint expects WebSocket connections only
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsync("WebSocket connection expected");
+            }
+        });
+    }
+
+    /// <summary>
+    /// Proxy WebSocket requests to Node.js
+    /// </summary>
     public static async Task WebSocketToNode(HttpContext context, Uri nextServerBase, bool allowInvalidCerts=true)
     {
         using var clientSocket = await context.WebSockets.AcceptWebSocketAsync();
@@ -287,7 +353,7 @@ public static class Proxy
 
         await nextSocket.ConnectAsync(builder.Uri, context.RequestAborted);
 
-        var forwardTask = PumpWebSocket(clientSocket, nextSocket, context.RequestAborted);
+        var forwardTask = PumpWebSocket(clientSocket, nextSocket,  context.RequestAborted);
         var reverseTask = PumpWebSocket(nextSocket, clientSocket, context.RequestAborted);
 
         await Task.WhenAll(forwardTask, reverseTask);
@@ -296,7 +362,7 @@ public static class Proxy
     static async Task PumpWebSocket(
         WebSocket source,
         WebSocket destination,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken=default)
     {
         try
         {
@@ -330,59 +396,41 @@ public static class Proxy
         }
     }
 
-    public static void MapCleanUrls(this WebApplication app)
+    /// <summary>
+    /// Run Next.js dev server if not already running
+    /// </summary>
+    public static System.Diagnostics.Process? RunNodeProcess(this WebApplication app,
+        NodeProxy proxy,
+        string lockFile,
+        string workingDirectory, 
+        bool registerExitHandler=true)
     {
-        // Serve .html files without extension
-        app.Use(async (context, next) =>
+        var process = app.StartNodeProcess(proxy, lockFile, workingDirectory, registerExitHandler);
+        var logPrefix = proxy.LogPrefix;
+        if (process != null)
         {
-            // Only process GET requests that don't have an extension and don't start with /api
-            var path = context.Request.Path.Value;
-            if (context.Request.Method == "GET" && !string.IsNullOrEmpty(path) && !Path.HasExtension(path)
-                && !path.StartsWith("/api", StringComparison.OrdinalIgnoreCase))
-            {
-                var fileProvider = app.Environment.WebRootFileProvider;
-                var fileInfo = fileProvider.GetFileInfo(path + ".html");
-                if (fileInfo.Exists && !fileInfo.IsDirectory)
-                {
-                    context.Response.ContentType = "text/html";
-                    using var stream = fileInfo.CreateReadStream();
-                    await stream.CopyToAsync(context.Response.Body); // Serve the HTML file directly
-                    return; // Don't call next(), we've handled the request
-                }
-            }
-            await next();
-        });
-    }
-    
-    public static IEndpointConventionBuilder MapNextHmr(this WebApplication app, HttpClient nodeClient)
-    {
-        return app.Map("/_next/webpack-hmr", async context =>
+            Console.WriteLine(logPrefix + "Started Next.js dev server");
+        }
+        else
         {
-            if (context.WebSockets.IsWebSocketRequest)
-            {
-                await WebSocketToNode(context, nodeClient.BaseAddress!);
-            }
-            else
-            {
-                // HMR endpoint expects WebSocket connections only
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await context.Response.WriteAsync("WebSocket connection expected");
-            }
-        });
+            Console.WriteLine(logPrefix + "Next.js dev server already running");
+        }
+        return process;
     }
 
     public static System.Diagnostics.Process? StartNodeProcess(this WebApplication app, 
-        string lockFile="../MyApp.Client/dist/lock",
-        string workingDirectory="../MyApp.Client", 
-        string? logPrefix="[node] ", 
+        NodeProxy proxy,
+        string lockFile,
+        string workingDirectory, 
         bool registerExitHandler=true)
     {
         if (!File.Exists(lockFile))
         {
-            if (!TryStartNode(workingDirectory, out var process))
+            if (!proxy.TryStartNode(workingDirectory, out var process))
                 return null;
 
-            var verbose = logPrefix != null;            
+            var verbose = proxy.Verbose;
+            var logPrefix = string.IsNullOrEmpty(proxy.LogPrefix) ? "" : proxy.LogPrefix + " ";
             process.Exited += (s, e) => {
                 if (verbose) Console.WriteLine(logPrefix + "Exited: " + process.ExitCode);
                 File.Delete(lockFile);
@@ -404,8 +452,8 @@ public static class Proxy
         return null;
     }
     
-    public static IEndpointConventionBuilder MapFallbackToNode(this WebApplication app, HttpClient nodeClient)
+    public static IEndpointConventionBuilder MapFallbackToNode(this WebApplication app, NodeProxy proxy)
     {
-        return app.MapFallback(context => HttpToNode(context, nodeClient));
+        return app.MapFallback(proxy.HttpToNode);
     }
 }

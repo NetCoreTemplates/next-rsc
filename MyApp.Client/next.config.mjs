@@ -19,9 +19,6 @@ const nextConfig = {
     // Configure pageExtensions to include MDX files
     pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
 
-    // Enable static export (replaces next export command)
-    output: isProd ? 'export' : undefined,
-
     // Change output directory from 'out' to 'dist'
     distDir: 'dist',
 

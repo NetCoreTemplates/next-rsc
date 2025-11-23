@@ -14,7 +14,7 @@ const Footer = () => {
               Read Documentation
             </a>
             <a
-              href={`https://github.com/NetCoreTemplates/next-static`}
+              href={`https://github.com/NetCoreTemplates/next-rsc`}
               className="mx-3 font-bold hover:underline text-gray-900 dark:text-gray-100"
             >
               View on GitHub

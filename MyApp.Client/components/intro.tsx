@@ -31,7 +31,7 @@ const Intro = () => {
       </h1>
       <div className="flex flex-col">
         <h4 className="text-lg mt-5 text-gray-700 dark:text-gray-300">
-          A statically rendered example using{' '}
+          React Server Components with{' '}
           <a
             href="https://nextjs.org/"
             className="underline hover:text-success duration-200 transition-colors"

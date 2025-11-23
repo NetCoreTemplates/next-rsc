@@ -38,7 +38,7 @@ services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AdditionalUserC
 services.AddServiceStack(typeof(MyServices).Assembly);
 
 var app = builder.Build();
-var nodeClient = Proxy.CreateNodeClient();
+var nodeProxy = new NodeProxy("http://localhost:3000");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -46,7 +46,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
         
-    app.MapNotFoundToNode(nodeClient, ignorePaths:["/Identity"]);
+    app.MapNotFoundToNode(nodeProxy, ignorePaths:["/Identity"]);
 }
 else
 {
@@ -71,20 +71,14 @@ app.UseServiceStack(new AppHost(), options => {
 // Proxy development HMR WebSocket and fallback routes to the Next server
 if (app.Environment.IsDevelopment())
 {
-    app.MapNextHmr(nodeClient);
+    app.MapNextHmr(nodeProxy);
 
     // Start the Next.js dev server if the Next.js lockfile does not exist
-    var process = app.StartNodeProcess();
-    if (process != null)
-    {
-        Console.WriteLine("Started Next.js dev server");
-    }
-    else
-    {
-        Console.WriteLine("Next.js dev server already running");
-    }
+    app.RunNodeProcess(nodeProxy,
+        lockFile: "../MyApp.Client/dist/lock",
+        workingDirectory: "../MyApp.Client");
 
-    app.MapFallbackToNode(nodeClient);
+    app.MapFallbackToNode(nodeProxy);
 }
 
 app.Run();

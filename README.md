@@ -1,15 +1,15 @@
-# .NET 10 Next.js Static Export Identity Auth Template
+# .NET 10 Next.js React Server Components Identity Auth Template
 
 ![](https://github.com/ServiceStack/docs.servicestack.net/blob/main/MyApp/wwwroot/img/pages/react/next-static.webp)
 
-> Browse [source code](https://github.com/NetCoreTemplates/next-static)
+> Browse [source code](https://github.com/NetCoreTemplates/next-rsc)
 
 A modern full-stack .NET 10.0 + Next.js 16 project template that combines the power of ServiceStack with Next.js static site generation and React 19. It provides a production-ready foundation for building scalable web applications with integrated authentication, database management, and background job processing.
 
 ## Quick Start
 
 ```bash
-npx create-net next-static MyProject
+npx create-net next-rsc MyProject
 ```
 
 ## Getting Started

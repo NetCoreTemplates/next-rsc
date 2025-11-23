@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 
-# Load variables from the .env file into the current shell.
+# Load variables from the .env file into the current shell so they're available to kamal and other commands.
 # NOTE: This script must be *sourced*, not executed, e.g.:
 #   source load-env.sh
 # or
 #   . ./load-env.sh
+
+# Add the necessary variables used by ./config/deploy.yml to .env file, e.g:
+# - GITHUB_REPOSITORY=org/repo         # Repo name used to derive image/service name and folder paths
+# - KAMAL_DEPLOY_IP=100.100.100.100    # IP address of server to deploy to
+# - KAMAL_DEPLOY_HOST=www.example.org  # domain name of website
+# - KAMAL_REGISTRY_USERNAME=user       # Container registry credentials (for ghcr.io)
+# - GITHUB_PACKAGES_TOKEN=ghp_xxx      
+# Login with:
+# echo $KAMAL_REGISTRY_PASSWORD | docker login ghcr.io -u mythz --password-stdin
 
 # If this script is run directly (./load-env.sh), print a warning because
 # environment changes will not persist in the parent shell.
