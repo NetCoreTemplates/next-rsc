@@ -38,7 +38,7 @@ RUN npm run ui:build
 
 # Build Next.js app
 WORKDIR /src/MyApp.Client
-COPY MyApp.Client/package*.json MyApp.Client/npm-shrinkwrap.json MyApp.Client/postinstall.mjs ./
+COPY MyApp.Client/package*.json MyApp.Client/postinstall.mjs ./
 RUN npm ci
 COPY MyApp.Client/ ./
 RUN npm run build
