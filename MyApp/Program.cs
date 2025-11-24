@@ -56,7 +56,6 @@ else
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
-app.MapCleanUrls();
 
 app.UseHttpsRedirection();
 app.UseWebSockets();
