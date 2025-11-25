@@ -317,7 +317,7 @@ const ImageCarousel: React.FC = () => {
 };
 
 const AutoUis: FC<{ className?: string }> = ({ className }) => {
-    return (<div className="relative overflow-hidden bg-white dark:bg-slate-900 pt-24 pb-40">
+    return (<div className={`relative overflow-hidden bg-white dark:bg-slate-900 pt-24 pb-40 ${className ?? ''}`}>
     
     {/* Background Decorative Elements (Glow effects) */}
     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] opacity-30 pointer-events-none">
