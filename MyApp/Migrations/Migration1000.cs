@@ -1,36 +1,46 @@
 using System.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using MyApp.Data;
 using ServiceStack;
 using ServiceStack.DataAnnotations;
 using ServiceStack.OrmLite;
+using System;
+using System.IO;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using MyApp;
 
 namespace MyApp.Migrations;
 
 public class Migration1000 : MigrationBase
 {
+
+    [Notes("Captures a Persons Name & Room Booking information")]
     public class Booking : AuditBase
     {
         [AutoIncrement]
         public int Id { get; set; }
-        public string Name { get; set; } = default!;
+        public string Name { get; set; }
         public RoomType RoomType { get; set; }
         public int RoomNumber { get; set; }
+        [IntlDateTime(DateStyle.Long)]
         public DateTime BookingStartDate { get; set; }
+        [IntlRelativeTime]
         public DateTime? BookingEndDate { get; set; }
+        [IntlNumber(Currency="USD")]
         public decimal Cost { get; set; }
         public string? Notes { get; set; }
         public bool? Cancelled { get; set; }
     }
-
+    
     public enum RoomType
     {
-        Queen,
+        Single,
         Double,
+        Queen,
+        Twin,
         Suite,
     }
+    
 
     public override void Up()
     {

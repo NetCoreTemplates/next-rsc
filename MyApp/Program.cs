@@ -38,7 +38,9 @@ services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AdditionalUserC
 services.AddServiceStack(typeof(MyServices).Assembly);
 
 var app = builder.Build();
-var nodeProxy = new NodeProxy("http://localhost:3000");
+var nodeProxy = new NodeProxy("http://localhost:3000") {
+    Log = app.Logger
+};
 app.MapNotFoundToNode(nodeProxy);
 
 // Configure the HTTP request pipeline.

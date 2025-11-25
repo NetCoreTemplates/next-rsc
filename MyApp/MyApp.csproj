@@ -36,6 +36,10 @@
     <ProjectReference Include="..\MyApp.ServiceModel\MyApp.ServiceModel.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);App_Data\**;node_modules\**</DefaultItemExcludes>
+  </PropertyGroup>
+
   <Target Name="CreateWwwrootFolderBuild" AfterTargets="AfterBuild">
     <MakeDir Directories="$(BuildDir)wwwroot" Condition="!Exists('$(BuildDir)wwwroot')" />
   </Target>

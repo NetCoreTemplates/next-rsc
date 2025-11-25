@@ -17,7 +17,8 @@ const getBaseUrl = () => {
   return '/';
 };
 
-export const client = new JsonServiceClient(getBaseUrl());
+export const BaseUrl = getBaseUrl()
+export const client = new JsonServiceClient(BaseUrl);
 
 // Load Metadata & Auth State on Startup
 // This needs to be called on client side only
@@ -27,9 +28,14 @@ export async function init() {
     const { useMetadata, authContext } = await import("@servicestack/react")
     const metadata = useMetadata(client)
     const authCtx = authContext()
+    console.log('init()', BaseUrl, process.env.INTERNAL_API_URL, process.env.apiBaseUrl)
 
     return await Promise.all([
-        metadata.loadMetadata(),
+        metadata.loadMetadata({
+            olderThan: BaseUrl == '/' || location.search.includes('clear=metadata') 
+                ? 0 
+                : 60 * 60 * 1000 //1hr 
+        }),
         client.post(new Authenticate())
             .then(r => {
                 authCtx.signIn(r)
