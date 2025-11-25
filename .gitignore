@@ -5,6 +5,7 @@
 dist/
 App_Data/
 wwwroot/
+.vscode/
 *.user
 *.tsbuildinfo
 #sqlite
