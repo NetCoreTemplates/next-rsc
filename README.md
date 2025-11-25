@@ -23,7 +23,7 @@ dotnet watch
 
 ## Architecture
 
-![](https://github.com/ServiceStack/docs.servicestack.net/blob/main/MyApp/wwwroot/img/pages/react/next-static-info.webp)
+![](https://github.com/ServiceStack/docs.servicestack.net/blob/main/MyApp/wwwroot/img/pages/react/next-rsc-info.webp)
 
 ### Unified Proxy Architecture
 
