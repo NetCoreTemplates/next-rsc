@@ -23,19 +23,23 @@ dotnet watch
 
 ## Architecture
 
-![](https://github.com/ServiceStack/docs.servicestack.net/blob/main/MyApp/wwwroot/img/pages/react/next-rsc-info.webp)
-
 ### Unified Proxy Architecture
 
 This template uses a consistent architecture across all environments where the .NET application always proxies requests to a full-featured Next.js server:
 
 **Development Mode:**
+
+![](https://raw.githubusercontent.com/ServiceStack/docs.servicestack.net/refs/heads/main/MyApp/wwwroot/img/pages/react/info/next-rsc-dev.svg)
+
 - ASP.NET Core proxies requests to Next.js dev server (running on port 3000)
 - Hot Module Replacement (HMR) support for instant UI updates
 - WebSocket proxying for Next.js HMR functionality
 - Automatic startup of Next.js dev server in `dotnet watch`
 
 **Production Mode:**
+
+![](https://raw.githubusercontent.com/ServiceStack/docs.servicestack.net/refs/heads/main/MyApp/wwwroot/img/pages/react/info/next-rsc-prod.svg)
+
 - ASP.NET Core proxies requests to Next.js production server (running on port 3000)
 - Both servers run side-by-side in the same Docker container
 - Static file responses cached in `NodeProxy` in-memory managed cache for optimal performance
@@ -43,13 +47,6 @@ This template uses a consistent architecture across all environments where the .
 - Single container deployment with coordinated process management
 
 ## Core Technologies
-
-### Backend (.NET 10.0)
-- **ServiceStack 10.x** - High-performance web services framework
-- **ASP.NET Core Identity** - Complete authentication & authorization system
-- **Entity Framework Core** - For Identity data management
-- **OrmLite** - ServiceStack's fast, lightweight Typed ORM for application data
-- **SQLite** - Default database (easily upgradable to PostgreSQL/SQL Server/MySQL)
 
 ### Frontend (Next.js 16 + React 19)
 - **Next.js** with static export capability
@@ -59,7 +56,14 @@ This template uses a consistent architecture across all environments where the .
 - **ServiceStack React Components** - Pre-built UI components
 
 ### .NET Frontend (Integrated + Optional)
-- **Razor Pages** - For Identity UI (`/Identity` routes)
+- **Razor Pages** - For Identity Auth UI (`/Identity` routes)
+
+### Backend (.NET 10.0)
+- **ServiceStack 10.x** - High-performance web services framework
+- **ASP.NET Core Identity** - Complete authentication & authorization system
+- **Entity Framework Core** - For Identity data management
+- **OrmLite** - ServiceStack's fast, lightweight Typed ORM for application data
+- **SQLite** - Default database (easily upgradable to PostgreSQL/SQL Server/MySQL)
 
 ## Major Features
 
