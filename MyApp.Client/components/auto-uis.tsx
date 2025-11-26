@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, FC } from 'react'
+import React, { useState, useEffect, useCallback, type FC } from 'react'
 
 interface Slide {
     title: string;

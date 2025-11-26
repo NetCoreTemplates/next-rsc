@@ -71,7 +71,7 @@ This template uses a consistent architecture across all environments where the .
 - Razor Pages for Identity UI (`/Identity` routes)
 - Credentials-based authentication
 
-### 2. AutoQuery CRUD
+### [2. AutoQuery CRUD](#autoquery-crud-dev-workflow)
 - Declarative API development with minimal code
 - Complete Auth-protected CRUD operations (see Bookings example at `/bookings-auto`)
 - Automatic audit trails (created/modified/deleted tracking)
