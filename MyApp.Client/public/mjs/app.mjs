@@ -197,8 +197,7 @@ globalThis.copy = function (e) {
     setTimeout(() => e.classList.remove('copying'), 3000)
 }
 
-document.addEventListener('DOMContentLoaded', () =>
-    Blazor.addEventListener('enhancedload', () => {
-        remount()
-        globalThis.hljs?.highlightAll()
-    }))
+document.addEventListener('DOMContentLoaded', () => {
+    remount()
+    globalThis.hljs?.highlightAll()
+})

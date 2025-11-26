@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyApp.Data;
 using MyApp.Migrations;
-using MyApp.ServiceModel;
 using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
