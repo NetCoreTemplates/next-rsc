@@ -1,6 +1,6 @@
 # .NET 10 Next.js React Server Components Identity Auth Template
 
-![](https://github.com/ServiceStack/docs.servicestack.net/blob/main/MyApp/wwwroot/img/pages/react/next-static.webp)
+![](https://github.com/ServiceStack/docs.servicestack.net/blob/main/MyApp/wwwroot/img/pages/react/next-rsc.webp)
 
 > Browse [source code](https://github.com/NetCoreTemplates/next-rsc)
 
