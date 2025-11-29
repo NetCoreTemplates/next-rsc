@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { TextInput, useClient } from "@servicestack/react"
 import { ApiResult } from "@servicestack/client"
+import { GettingStarted, AutoUis } from "react-net-templates"
 import { CMS_NAME } from "@/lib/constants"
 import { Hello, HelloResponse } from "@/lib/dtos"
 
@@ -22,16 +23,16 @@ const HelloApi = ({ name }:any) => {
     : <div className="ml-3 mt-2 text-gray-900 dark:text-gray-100">{api.response?.result ?? 'loading...'}</div>
 }
 
-const Intro = () => {
+export default function Intro() {
   const [inputValue, setInputValue] = useState<string>("Next.js");
-    return (
+    return (<>
     <section className="flex-col md:flex-row flex items-center md:justify-between mt-16 mb-16 md:mb-12">
       <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-tight md:pr-8 text-gray-900 dark:text-gray-100">
         Next.js
       </h1>
       <div className="flex flex-col">
         <h4 className="text-lg mt-5 text-gray-700 dark:text-gray-300">
-          React Server Components with{' '}
+          A statically rendered example using{' '}
           <a
             href="https://nextjs.org/"
             className="underline hover:text-success duration-200 transition-colors"
@@ -49,7 +50,11 @@ const Intro = () => {
         </div>
       </div>
     </section>
-  )
+    <div>
+      <div className="mb-32 flex justify-center">
+        <GettingStarted template="next-rsc" />
+      </div>
+      <AutoUis className="mt-60" />
+    </div>
+  </>)
 }
-
-export default Intro
