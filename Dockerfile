@@ -22,7 +22,6 @@ RUN apt-get update \
 
 # Copy solution and projects
 COPY MyApp.slnx ./
-COPY NuGet.Config ./
 COPY MyApp ./MyApp
 COPY MyApp.ServiceInterface ./MyApp.ServiceInterface
 COPY MyApp.ServiceModel ./MyApp.ServiceModel
