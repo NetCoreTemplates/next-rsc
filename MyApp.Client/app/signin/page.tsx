@@ -14,11 +14,11 @@ import {getRedirect} from "@/lib/gateway"
 function SignInContent() {
 
     const client = useClient()
-    const [username, setUsername] = useState<string | number>()
-    const [password, setPassword] = useState<string | number>()
+    const [userName, setUserName] = useState<string|undefined>()
+    const [password, setPassword] = useState<string|undefined>()
 
     const setUser = (email: string) => {
-        setUsername(email)
+        setUserName(email)
         setPassword('p@55wOrd')
     }
     const router = useRouter()
@@ -35,9 +35,7 @@ function SignInContent() {
 
     const onSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
-
-        const {userName, password, rememberMe} = serializeToObject(e.currentTarget);
-        const api = await client.api(new Authenticate({provider: 'credentials', userName, password, rememberMe}))
+        const api = await client.api(new Authenticate({ provider:'credentials', userName, password }))
         if (api.succeeded)
             await revalidate()
     }
@@ -52,7 +50,7 @@ function SignInContent() {
                             <div className="px-4 py-5 bg-white dark:bg-black space-y-6 sm:p-6">
                                 <div className="flex flex-col gap-y-4">
                                     <TextInput id="userName" help="Email you signed up with" autoComplete="email"
-                                               value={username} onChange={setUsername}/>
+                                               value={userName} onChange={setUserName}/>
                                     <TextInput id="password" type="password" help="6 characters or more"
                                                autoComplete="current-password"
                                                value={password} onChange={setPassword}/>
