@@ -33,6 +33,24 @@ const nextConfig = {
     env: {
         apiBaseUrl: API_URL
     },
+
+    // Proxy API requests to backend during development
+    async rewrites() {
+        // Only proxy in development mode
+        if (isProd) return []
+
+        return [
+            {
+                source: '/api/:path*',
+                destination: `${target}/api/:path*`,
+            },
+            {
+                source: '/metadata/:path*',
+                destination: `${target}/metadata/:path*`,
+            },
+        ]
+    },
+
 }
 
 export default nextConfig
