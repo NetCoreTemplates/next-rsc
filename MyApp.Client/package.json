@@ -17,10 +17,10 @@
     "@servicestack/client": "^2.1.13",
     "@servicestack/react": "^2.0.17",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.554.0",
-    "next": "^16.0.3",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "lucide-react": "^0.555.0",
+    "next": "^16.0.7",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-net-templates": "^0.0.1",
     "tailwind-merge": "^3.4.0"
   },
@@ -30,7 +30,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@testing-library/react": "^16.3.0",
     "@types/node": "24.10.1",
-    "@types/react": "^19.2.6",
+    "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.22",
@@ -38,6 +38,6 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.13"
+    "vitest": "^4.0.15"
   }
 }
