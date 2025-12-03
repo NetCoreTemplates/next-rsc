@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@servicestack/client": "^2.1.13",
-    "@servicestack/react": "^2.0.16",
+    "@servicestack/react": "^2.0.17",
     "clsx": "^2.1.1",
     "lucide-react": "^0.554.0",
     "next": "^16.0.3",
