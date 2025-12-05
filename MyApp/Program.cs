@@ -68,12 +68,12 @@ app.UseServiceStack(new AppHost(), options => {
     options.MapEndpoints();
 });
 
-// Proxy development HMR WebSocket and fallback routes to the Next server
+// Proxy HMR WebSocket and fallback routes to Node dev server in Development
 if (app.Environment.IsDevelopment())
 {
     app.RunNodeProcess(nodeProxy, "../MyApp.Client"); // Start Node if not running
     app.UseWebSockets();
-    app.MapNextHmr(nodeProxy); // Proxy HMR WebSocket requests 
+    app.MapNextHmr(nodeProxy);
 }
 
 app.MapFallbackToNode(nodeProxy);
