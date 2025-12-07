@@ -1,10 +1,10 @@
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+    <footer className="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 relative">
       <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
 
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-10 mb-12">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="text-center lg:text-left space-y-4">
             <h3 className="text-4xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white">
               <a href="https://react-templates.net" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
@@ -28,13 +28,11 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500 dark:text-slate-500">
-          <p>&copy; {new Date().getFullYear()} My App. All rights reserved.</p>
-          <div className="flex gap-8">
-            <a href="#" className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors">Privacy Policy</a>
-          </div>
-        </div>
+      </div>
 
+      <div className="absolute bottom-4 left-6 right-6 flex justify-between items-center text-xs text-slate-400 dark:text-slate-600">
+        <p>&copy; {new Date().getFullYear()} My App</p>
+        <a href="#" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors">Privacy Policy</a>
       </div>
     </footer>
   )
