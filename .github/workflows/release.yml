@@ -15,6 +15,7 @@ on:
 env:
   DOCKER_BUILDKIT: 1
   SERVICESTACK_LICENSE: ${{ secrets.SERVICESTACK_LICENSE }}
+  APPSETTINGS_JSON: ${{ secrets.APPSETTINGS_JSON }}
   KAMAL_DEPLOY_IP: ${{ secrets.KAMAL_DEPLOY_IP }}
   KAMAL_DEPLOY_HOST: ${{ secrets.KAMAL_DEPLOY_HOST }}
   KAMAL_REGISTRY_USERNAME: ${{ github.actor }}
@@ -27,6 +28,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+
+      - name: Encode APPSETTINGS_JSON for runtime
+        if: env.APPSETTINGS_JSON != null
+        run: |
+          # Base64 encode to avoid shell/YAML quoting issues; keep as a single env var.
+          b64=$(printf '%s' "$APPSETTINGS_JSON" | base64 -w0)
+          echo "APPSETTINGS_JSON_BASE64=$b64" >> $GITHUB_ENV
 
       - name: Set up environment variables
         run: |

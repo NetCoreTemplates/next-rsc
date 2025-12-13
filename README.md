@@ -226,28 +226,31 @@ Configure in `appsettings.json` or environment:
 
 ### App Settings Secrets
 
-Instead of polluting each GitHub Reposity with multiple App-specific GitHub Action Secrets, you can save all your secrets in a single `APPSETTINGS_PATCH` GitHub Action Secret to patch `appsettings.json` with environment-specific configuration using [JSON Patch](https://jsonpatch.com). E.g:
+To keep GitHub Actions minimal (one secret) *and* avoid baking secrets into Docker image layers, set a single `APPSETTINGS_JSON` GitHub Secret and inject it at **runtime**.
+
+In CI/CD the secret is converted to `APPSETTINGS_JSON_BASE64` (to avoid YAML/shell quoting issues) and the container `entrypoint.sh` writes it to `/app/dotnet/appsettings.Production.json` with restrictive permissions.
+
+Example `APPSETTINGS_JSON` secret value:
 
 ```json
-[
-    {
-        "op":"replace",
-        "path":"/ConnectionStrings/DefaultConnection",
-        "value":"Server=service-postgres;Port=5432;User Id=dbuser;Password=dbpass;Database=dbname;Pooling=true;"
-    },
-    { "op":"add", "path":"/SmtpConfig", "value":{
-        "UserName": "SmptUser",
-        "Password": "SmptPass",
-        "Host": "email-smtp.us-east-1.amazonaws.com",
-        "Port": 587,
-        "From": "noreply@example.org",
-        "FromName": "MyApp",
-        "Bcc": "copy@example.org"
-      } 
-    },
-    { "op":"add", "path":"/Admins", "value": ["admin1@email.com","admin2@email.com"] },
-    { "op":"add", "path":"/CorsFeature/allowOriginWhitelist/-", "value":"https://servicestack.net" }
-]
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=service-postgres;Port=5432;User Id=dbuser;Password=dbpass;Database=dbname;Pooling=true;"
+  },
+  "SmtpConfig": {
+    "UserName": "SmptUser",
+    "Password": "SmptPass",
+    "Host": "email-smtp.us-east-1.amazonaws.com",
+    "Port": 587,
+    "From": "noreply@example.org",
+    "FromName": "MyApp",
+    "Bcc": "copy@example.org"
+  },
+  "Admins": ["admin1@email.com", "admin2@email.com"],
+  "CorsFeature": {
+    "allowOriginWhitelist": ["https://servicestack.net"]
+  }
+}
 ```
 
 ### SMTP Email

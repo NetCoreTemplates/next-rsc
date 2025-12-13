@@ -15,6 +15,7 @@ wwwroot/
 *.sqlite-shm
 *.sqlite-wal
 Configure.secrets.cs
+appsettings.Production.json
 
 # dependencies
 node_modules/

@@ -22,6 +22,7 @@ env:
   # secrets from ./kamal/secrets
   secret:
     - SERVICESTACK_LICENSE
+    - APPSETTINGS_JSON_BASE64
 
 # Deploy to these servers.
 servers:

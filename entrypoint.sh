@@ -4,6 +4,21 @@ set -e
 ASPNETCORE_URLS="${ASPNETCORE_URLS:-http://0.0.0.0:8080}"
 NEXT_PORT="${NEXT_PORT:-3000}"
 
+# Optionally materialize production settings at runtime (keeps secrets out of image layers).
+# - Prefer APPSETTINGS_JSON_BASE64 (generated in CI) to avoid shell/quoting issues.
+# - Fallback to APPSETTINGS_JSON if provided.
+if [[ -n "${APPSETTINGS_JSON_BASE64:-}" || -n "${APPSETTINGS_JSON:-}" ]]; then
+  echo "Writing /app/dotnet/appsettings.Production.json from env..."
+  umask 077
+  SETTINGS_FILE="/app/dotnet/appsettings.Production.json"
+  if [[ -n "${APPSETTINGS_JSON_BASE64:-}" ]]; then
+    printf '%s' "$APPSETTINGS_JSON_BASE64" | base64 -d > "$SETTINGS_FILE"
+  else
+    printf '%s' "$APPSETTINGS_JSON" > "$SETTINGS_FILE"
+  fi
+  chmod 600 "$SETTINGS_FILE" || true
+fi
+
 # If running an AppTask (e.g. --AppTasks=migrate), run only the .NET app and exit
 if [[ "$*" == *"--AppTasks"* ]]; then
   echo "Running AppTask with args: $*"
