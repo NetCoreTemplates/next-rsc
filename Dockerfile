@@ -3,7 +3,7 @@
 # Build arguments
 ARG KAMAL_DEPLOY_HOST
 ARG SERVICESTACK_LICENSE
-ARG SERVICE_LABEL
+ARG SERVICE
 
 # 1. Build .NET app + Node.js apps
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS dotnet-build
@@ -51,13 +51,13 @@ RUN dotnet publish MyApp/MyApp.csproj -c Release --no-restore -p:PublishProfile=
 # 2. Runtime image with .NET + Node
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 ARG SERVICESTACK_LICENSE
-ARG SERVICE_LABEL
+ARG SERVICE
 ARG KAMAL_DEPLOY_HOST
 
 WORKDIR /app
 
 # Label required by Kamal, must match config/deploy.yml service
-LABEL service="${SERVICE_LABEL}"
+LABEL service="${SERVICE}"
 
 # Install Node.js >= 20.9 (Node 24.x LTS) and bash for the entrypoint script
 RUN apt-get update \
