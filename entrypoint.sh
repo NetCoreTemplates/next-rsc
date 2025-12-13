@@ -13,15 +13,25 @@ if [[ "$*" == *"--AppTasks"* ]]; then
 fi
 
 echo "Starting ASP.NET Core on ${ASPNETCORE_URLS}..."
-DOTNET_ENV_VARS=("ASPNETCORE_URLS=${ASPNETCORE_URLS}")
 
-# Start ASP.NET Core application with correct content root so appsettings.json is loaded
+# Start ASP.NET Core application as root with full environment
 ASPNETCORE_CONTENTROOT="/app/api" ASPNETCORE_URLS="${ASPNETCORE_URLS}" dotnet /app/api/MyApp.dll &
 DOTNET_PID=$!
 
-echo "Starting Next.js on port ${NEXT_PORT}..."
+echo "Starting Next.js on port ${NEXT_PORT} as isolated user..."
+
+# Start Node.js with minimal environment and as unprivileged user
+# Only pass through safe environment variables
+cd /app/client && su nodeuser -s /bin/bash -c "
+export HOME=/tmp
+export NODE_ENV=production
+export NEXT_PORT=${NEXT_PORT}
+export INTERNAL_API_URL=${INTERNAL_API_URL:-http://127.0.0.1:8080}
+export KAMAL_DEPLOY_HOST=${KAMAL_DEPLOY_HOST}
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 cd /app/client
-npm run start -- --port "${NEXT_PORT}" &
+npm run start -- --port ${NEXT_PORT}
+" &
 NEXT_PID=$!
 
 term_handler() {

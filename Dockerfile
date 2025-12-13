@@ -67,11 +67,19 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy published .NET app
-COPY --from=dotnet-build /src/MyApp/bin/Release/net10.0/publish ./api
+# Create unprivileged user for Node.js
+RUN groupadd -r nodeuser && useradd -r -g nodeuser -s /bin/bash nodeuser
 
-# Copy built Next.js app (including dist, node_modules, public, etc.)
+# Copy published .NET app (owned by root, no access for nodeuser)
+COPY --from=dotnet-build /src/MyApp/bin/Release/net10.0/publish ./api
+RUN chmod -R 700 ./api && chown -R root:root ./api
+
+# Copy built Next.js app (owned by nodeuser, read-only)
 COPY --from=dotnet-build /src/MyApp.Client ./client
+RUN chown -R nodeuser:nodeuser ./client && chmod -R 500 ./client
+
+# Create /tmp directory accessible to nodeuser
+RUN mkdir -p /tmp && chmod 1777 /tmp
 
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080 \
     INTERNAL_API_URL=http://127.0.0.1:8080 \
