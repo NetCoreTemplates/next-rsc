@@ -3,6 +3,7 @@
 # Build arguments
 ARG KAMAL_DEPLOY_HOST
 ARG SERVICESTACK_LICENSE
+ARG APP_PASSWORD
 ARG SERVICE_LABEL
 
 # 1. Build .NET app + Node.js apps
@@ -30,9 +31,9 @@ COPY MyApp.ServiceModel ./MyApp.ServiceModel
 WORKDIR /src/MyApp
 
 # Download tailwindcss binary directly (avoiding sudo requirement in postinstall.js)
-RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
-    && chmod +x tailwindcss-linux-x64 \
-    && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
+RUN curl -sL https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
+    -o /usr/local/bin/tailwindcss \
+    && chmod +x /usr/local/bin/tailwindcss
 RUN npm run ui:build
 
 # Build Next.js app
@@ -67,18 +68,18 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create unprivileged user for Node.js
-RUN groupadd -r nodeuser && useradd -r -g nodeuser -s /bin/bash nodeuser
+# Create unprivileged user for Next.js
+RUN groupadd -r nextjs && useradd -r -g nextjs -s /bin/bash nextjs
 
-# Copy published .NET app (owned by root, no access for nodeuser)
-COPY --from=dotnet-build /src/MyApp/bin/Release/net10.0/publish ./api
-RUN chmod -R 700 ./api && chown -R root:root ./api
+# Copy published .NET app (owned by root, no access for nextjs user)
+COPY --from=dotnet-build /src/MyApp/bin/Release/net10.0/publish ./dotnet
+RUN chmod -R 700 ./dotnet && chown -R root:root ./dotnet
 
-# Copy built Next.js app (owned by nodeuser, read-only)
-COPY --from=dotnet-build /src/MyApp.Client ./client
-RUN chown -R nodeuser:nodeuser ./client && chmod -R 500 ./client
+# Copy built Next.js app (owned by nextjs user, read-only)
+COPY --from=dotnet-build /src/MyApp.Client ./nextjs
+RUN chown -R nextjs:nextjs ./nextjs && chmod -R 500 ./nextjs
 
-# Create /tmp directory accessible to nodeuser
+# Create /tmp directory accessible to nextjs user
 RUN mkdir -p /tmp && chmod 1777 /tmp
 
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080 \
