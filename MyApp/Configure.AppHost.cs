@@ -23,8 +23,9 @@ public class AppHost() : AppHostBase("MyApp"), IHostingStartup
     {
         TypeScriptGenerator.InsertTsNoCheck = true;
         
-        SetConfig(new HostConfig {
-        });
+        // Configure ServiceStack AppHost
+        // SetConfig(new() {
+        // });
     }
     
     // TODO: Replace with your own License Key. FREE Individual or OSS License available from: https://servicestack.net/free
