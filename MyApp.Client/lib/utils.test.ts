@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { formatCurrency, formatDate, dateInputFormat } from './utils'
+import { describe, it, expect } from 'vite-plus/test'
+import { formatCurrency, dateInputFormat } from './utils'
 
 describe('utils', () => {
   describe('formatCurrency', () => {

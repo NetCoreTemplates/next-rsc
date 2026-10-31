@@ -7,7 +7,7 @@ import { ValidateAuth } from "@/lib/auth"
 
 function BookingsCustom() {
     const { currency } = useFormatters()
-    const [coupon, setCoupon] = useState<any>(null)
+    const [, setCoupon] = useState<any>(null)
 
     return (<Page title="AutoQueryGrid Bookings CRUD Example">
 

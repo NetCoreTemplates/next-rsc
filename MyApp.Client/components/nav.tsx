@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useAuth, PrimaryButton, SecondaryButton, DarkModeToggle } from "@servicestack/react"
+import { PrimaryButton, SecondaryButton, DarkModeToggle } from "@servicestack/react"
 import { appAuth } from "@/lib/auth"
 
 type NavItem = {
@@ -21,11 +21,7 @@ export default function Nav() {
         { href: '/bookings-auto', name: 'Bookings'},
     ]
 
-    const { user, hasRole, signOut } = appAuth()
-    const navClass = (path:string) => [
-        "p-4 flex items-center justify-start mw-full hover:text-sky-500 dark:hover:text-sky-400",
-        pathname === path || pathname.startsWith(path + '/') ? "text-link-dark dark:text-link-dark" : "",
-    ].join(" ")
+    const { user, signOut } = appAuth()
 
     return (<header className="border-b border-gray-200 dark:border-gray-700 pr-3 bg-white dark:bg-gray-800">
         <div className="flex flex-wrap items-center">
@@ -53,6 +49,8 @@ export default function Nav() {
                                 <li>
                                     <div className="mx-3 relative">
                                         <div>
+                                            {/* Razor Page, not a Next.js page */}
+                                            {/* oxlint-disable-next-line nextjs/no-html-link-for-pages */}
                                             <a href="/Identity/Account/Manage"
                                                   className="max-w-xs rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 lg:p-2 lg:rounded-md lg:hover:bg-gray-50 dark:lg:hover:bg-gray-900 dark:ring-offset-black"
                                                   id="user-menu-button" aria-expanded="false" aria-haspopup="true">

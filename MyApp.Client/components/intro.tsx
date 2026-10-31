@@ -7,7 +7,7 @@ import { GettingStarted, AutoUis } from "react-net-templates"
 import { CMS_NAME } from "@/lib/constants"
 import { Hello, HelloResponse } from "@/lib/dtos"
 
-const HelloApi = ({ name }:any) => {
+export const HelloApi = ({ name }:any) => {
   const client = useClient()
   const [api, setApi] = useState<ApiResult<HelloResponse>>(new ApiResult())
 
