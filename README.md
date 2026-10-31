@@ -59,7 +59,8 @@ This template uses a consistent architecture across all environments where the .
 ### Frontend (Next.js 16 + React 19)
 - **Next.js** with static export capability
 - **Tailwind CSS 4.x** - Utility-first styling with PostCSS
-- **TypeScript** - Type-safe development
+- **TypeScript 7** - Type-safe development, type checked by Oxlint (TypeScript Go)
+- **Vite+** - Unified toolchain for Vitest, Oxlint and Oxfmt via the `vp` CLI (Next.js still builds the app)
 - **Vitest** - Modern testing framework
 - **ServiceStack React Components** - Pre-built UI components
 
@@ -125,8 +126,10 @@ MyApp.Client/                # Next.js frontend application
 ├── app/                     # Next.js App Router pages
 ├── components/              # React components
 ├── lib/                     # Utilities and helpers
+│   └── dtos.ts              # TypeScript DTOs, auto-generated on .NET App startup
 ├── public/                  # Static assets
-└── dist/                    # Build output (production)
+├── dist/                    # Build output (production)
+└── vite.config.ts           # Vite+ config (lint, fmt, test)
 
 MyApp.ServiceInterface/      # Service implementations
 ├── MyServices.cs            # Example services
@@ -158,13 +161,13 @@ dotnet watch
 
 This automatically starts both .NET and Next.js dev servers.
 
-### 2. Generate TypeScript DTOs
+### 2. TypeScript DTOs
 
-After modifying C# service models, regenerate TypeScript dtos.ts in `MyApp` or `MyApp.Client` with:
+TypeScript DTOs in `MyApp.Client/lib/dtos.ts` are generated automatically from your C# service models every time the .NET App starts.
+This is done by the `dtos` StartupTask in [Configure.StartupTasks.GenerateDtos.cs](MyApp/Configure.StartupTasks.GenerateDtos.cs).
+After modifying C# service models, restart the .NET App and the updated DTOs are ready to use.
 
-```bash
-npm run dtos
-```
+It's typically never needed, but DTOs can also be regenerated manually against a running .NET App with `npm run dtos` in `MyApp` or `MyApp.Client`.
 
 ### 3. Database Migrations
 
@@ -188,6 +191,16 @@ npm run test:ui     # Run tests with UI
 npm run test:run    # Run tests once
 ```
 
+**Format, lint & type check:**
+```bash
+cd MyApp.Client
+npm run check       # Format + lint + type check
+npm run fmt         # Format files
+```
+
+The [Vite+](https://viteplus.dev) `vp` CLI is installed locally, so the npm scripts work without a global install.
+Install the optional global CLI (`curl -fsSL https://vite.plus | bash`) to run `vp` commands directly.
+
 **Backend:**
 ```bash
 dotnet test
@@ -200,6 +213,7 @@ dotnet test
 
 - **MyApp/appsettings.json** - Application configuration
 - **MyApp.Client/next.config.mjs** - Next.js configuration
+- **MyApp.Client/vite.config.ts** - Vite+ lint, format and test configuration
 - **MyApp.Client/styles/index.css** - Tailwind CSS configuration
 - **config/deploy.yml** - Kamal deployment settings
 
