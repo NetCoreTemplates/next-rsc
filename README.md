@@ -4,7 +4,7 @@
 
 > Browse [source code](https://github.com/NetCoreTemplates/next-rsc)
 
-A modern full-stack .NET 10.0 + Next.js 16 project template that combines the power of ServiceStack with Next.js static site generation and React 19. It provides a production-ready foundation for building scalable web applications with integrated authentication, database management, and background job processing.
+A modern full-stack .NET 10.0 + Next.js 16 project template that combines the power of ServiceStack with Next.js, React Server Components and React 19. It provides a production-ready foundation for building scalable web applications with integrated authentication, database management, and background job processing.
 
 ## Quick Start
 
@@ -57,7 +57,7 @@ This template uses a consistent architecture across all environments where the .
 ## Core Technologies
 
 ### Frontend (Next.js 16 + React 19)
-- **Next.js** with static export capability
+- **Next.js** App Router with React Server Components and dynamic rendering (`next start` in production)
 - **Tailwind CSS 4.x** - Utility-first styling with PostCSS
 - **TypeScript 7** - Type-safe development, type checked by Oxlint (TypeScript Go)
 - **Vite+** - Unified toolchain for Vitest, Oxlint and Oxfmt via the `vp` CLI (Next.js still builds the app)
